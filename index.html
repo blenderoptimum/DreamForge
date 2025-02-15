@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Image Generator</title>
+    <script>
+        async function generateImage() {
+            let text = document.getElementById("inputText").value;
+            let response = await fetch("https://your-repl-url/repl.co/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text: text })
+            });
+            let result = await response.json();
+            document.getElementById("imageResult").src = result.image_url;
+        }
+
+        function speakText() {
+            let text = document.getElementById("inputText").value;
+            let speech = new SpeechSynthesisUtterance(text);
+            speechSynthesis.speak(speech);
+        }
+
+        async function upscaleImage() {
+            let response = await fetch("https://api.deepai.org/api/torch-srgan", {
+                method: "POST",
+                headers: { "Api-Key": "quickstart-QUdJIGlzIGNvbWluZw==" }
+            });
+            let result = await response.json();
+            document.getElementById("imageResult").src = result.output_url;
+        }
+
+        async function removeBackground() {
+            let response = await fetch("https://api.remove.bg/v1.0/removebg", {
+                method: "POST",
+                headers: { "X-Api-Key": "free-public-key" },
+                body: new FormData(document.getElementById("imageResult"))
+            });
+            let result = await response.json();
+            document.getElementById("imageResult").src = result.output_url;
+        }
+
+        async function generatePrompt() {
+            let response = await fetch("https://api.deepai.org/api/text-generator", {
+                method: "POST",
+                headers: { "Api-Key": "quickstart-QUdJIGlzIGNvbWluZw==" },
+                body: JSON.stringify({ text: "Give me an artistic AI image idea." })
+            });
+            let result = await response.json();
+            document.getElementById("inputText").value = result.output;
+        }
+    </script>
+</head>
+<body>
+    <h1>AI Text-to-Image Generator</h1>
+    <input type="text" id="inputText" placeholder="Enter prompt">
+    <button onclick="generateImage()">Generate Image</button>
+    <button onclick="speakText()">🔊 Read Prompt</button>
+    <button onclick="generatePrompt()">💡 Suggest a Prompt</button>
+    <br><br>
+    <button onclick="upscaleImage()">Enhance Image</button>
+    <button onclick="removeBackground()">Remove Background</button>
+    <br><br>
+    <img id="imageResult" width="500px">
+</body>
+</html>
